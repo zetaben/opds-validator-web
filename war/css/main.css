@@ -1,0 +1,116 @@
+.container{margin:auto}
+
+h1 {
+	font-family: Arial, sans-serif;
+	font-weight: bold;
+	line-height: 40px;
+	margin-bottom: 0.1em;
+}
+
+h2 {
+	font: 15px Georgia, serif;
+	line-height: 22px;
+	color: #666;
+	font-size: 15px;
+	font-style: italic;
+}
+
+.submit_button {
+	text-align: center;
+}
+
+#results {
+	display: none;
+	padding: 1em;
+}
+
+#head {
+	padding: 88px 0 44px 0;
+}
+
+form {
+	font-size: 1.4em;
+}
+
+#uri_input {
+	border: 1px solid #BBB;
+	padding:0.2em;
+	
+}
+
+#uri_input img {
+	display:none;
+}
+
+#uri_input {padding-right:1.6em}
+#uri_input.loading {padding-right:0.2em}
+
+#uri_input.loading img {
+	display:inline;
+}
+
+
+
+
+#uri_input img {
+	width: 1.4em;
+	height: 1.4em;
+	vertical-align: middle;
+	padding-bottom: .2em;
+/*	padding-right: 0.3em;*/
+	
+}
+
+#uri {
+	border: none;
+}
+
+.sevfatal {
+	background-color: #CC99CC;
+}
+
+.severror {
+	background-color: #FFCCCC;
+}
+
+.sevwarning {
+	background-color: #FFFFCC;
+}
+
+.sevinfo {
+	background-color: #CCCCFF;
+}
+
+.failed {
+	background-color: #FFCCCC;
+}
+
+.successful {
+	background-color: #CCFFCC;
+}
+
+.result {
+	border: 1px solid #222
+}
+
+ol#error_loop li {
+	list-style-type: none;
+	font-size: 1.3em;
+}
+
+li.msg_err {
+	padding: 1em;
+}
+
+li span.err_type img {
+	width: 1.3em;
+	height: 1.3em;
+	padding-bottom: .2em;
+	padding-right: 0.3em;
+	vertical-align: middle;
+}
+
+.msg {
+	font-weight: bold;
+	line-height: 130%;
+}

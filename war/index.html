@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Open Publication Distribution System Validator</title>
+    <link rel="stylesheet" href="css/screen.css" type="text/css" media="screen, projection"/>
+	<link rel="stylesheet" href="css/print.css" type="text/css" media="print"/>
+	<!--[if lt IE 8]>
+  		<link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"/>
+	<![endif]-->
+	<link rel="stylesheet" href="css/main.css" type="text/css" />
+  </head>
+
+  <body>
+  	<div class="container">
+  	<div id="head">
+  		<h1>Open Publication Distribution System</h1>
+  		<h2>Unofficial Validator</h2>
+	</div>
+    <fieldset id="validate-by-uri" class="tabset_content front"><legend class="tabset_label">Validate by URI</legend> 
+  <form method="get" action="/opdsvalidatorweb" id="validation_form"> 
+    <p class="instructions"> 
+	Validate a feed online:     
+   </p> 
+   <p> 
+	<label title="Address of page to Validate" for="uri">Address:</label> 
+        <span id="uri_input"><input type="text" name="uri" id="uri" size="100" /></span> 
+   </p> 
+   	<p class="submit_button"> 
+			<input type="submit" title="Submit for validation" value="Check" /> 
+	</p> 
+	
+	<legend class="toggletext">
+		<a><img id="toggleiconURI" class="toggleicon toggled" src="./img/arrow-open.png" alt="Hide "> More Options</a>
+	</legend>
+	<div id="options">
+	<table>
+	<tr><th>OPDS Version</th><td><select name="opds_version" id="opds_version"><option value="1.0">1.0</option><option value="1.1" selected="selected">1.1 (current)</option></select></td></tr>
+	</table>
+	</div>
+   </form>
+   </fieldset>
+   <div id="results" class="prepend-1 append-1 last">
+   
+   </div>
+	</div>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript">
+  //<![CDATA[
+  
+  $("#uri").after("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader\"/>");
+  $("#uri_input").removeClass("loading");
+  
+  function openOptions(){
+  	$("#options").slideDown("fast");
+  	$("#toggleiconURI")[0].src="./img/arrow-open.png"
+  }
+  
+  function closeOptions(){
+  	$("#options").slideUp("fast");
+  	$("#toggleiconURI")[0].src="./img/arrow-closed.png"
+  }
+  $(".toggletext").toggle(openOptions,closeOptions)
+  
+  closeOptions();
+  
+  function res_init(success){
+		$("#results").empty().addClass((success ? "successful" : "failed" )).removeClass((!success ? "successful" : "failed" )).append("<h3>Validation "+(success ? "Successful" : "Failed" )+"</h3>")
+	  }
+  
+  function validation_successful(){
+		console.log("success");
+		res_init(true);
+		$("#results").show();
+	  }
+
+  function validation_failed(req){
+		console.log("failure");
+		res_init(false);
+		if(req.status==409){
+		var errs=$.parseJSON(req.responseText);
+		var resu=" <ol id=\"error_loop\"> "
+		for(var i=0;i<errs.length;i++){
+
+			var txt=""
+			if(errs[i].severity=="error"){
+				txt="<img src=\"img/error.png\" alt=\"Error\" title=\"Error\" />"
+			}else if(errs[i].severity=="fatal"){
+				txt="<img src=\"img/fatal.png\" alt=\"Fatal Error\" title=\"Fatal Error\" />"
+			}if(errs[i].severity=="warning"){
+				txt="<img src=\"img/warning.png\" alt=\"Warning\" title=\"Warning\" />"
+			}if(errs[i].severity=="info"){
+				txt="<img src=\"img/info.png\" alt=\"Information\" title=\"Information\" />"
+			}
+			txt="<span class=\"err_type\">"+txt+"</span>"
+			txt+="<em>"
+				if(errs[i].line > 0 ){
+						txt+="Line "+errs[i].line
+						if(errs[i].column > 0){txt+=", "}
+					}
+			if(errs[i].column > 0){
+				txt+="Column "+errs[i].column
+				}
+			txt+="</em> \n<span class=\"msg\">"+errs[i].message+"</span>"
+			
+			resu+="<li class=\"msg_err sev"+errs[i].severity+"\">"+txt+"</li>"
+			}
+		$("#results").append(resu+"</ol>")
+		}else{
+			$("#results").append(req.responseText)
+		}
+		$("#results").show();
+	  }
+  
+  function form_submitted(){
+	
+	$("#results").hide();
+	$("#uri_input").addClass("loading");
+	$.getJSON($("#validation_form")[0].action,{uri:$("#uri").val(),opds_version:$("#opds_version").val()},validation_successful).error(validation_failed).complete(function(){$("#uri_input").removeClass("loading");})
+	  
+	  return false;
+	  }
+ 
+  $("h1").click(form_submitted)
+$("#validation_form").submit(form_submitted)	
+
+
+	//]]>
+    </script>
+  </body>
+</html>
