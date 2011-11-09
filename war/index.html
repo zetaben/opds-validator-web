@@ -75,17 +75,30 @@
 		$("#results").empty().addClass((success ? "successful" : "failed" )).removeClass((!success ? "successful" : "failed" )).append("<h3>Validation "+(success ? "Successful" : "Failed" )+"</h3>")
 	  }
   
-  function validation_successful(){
-		console.log("success");
+  function validation_successful(errs){
+		//console.log("success");
 		res_init(true);
+		if(errs.length > 0 ){
+			$("#results h3").append(" with warnings");
+			render_validation_results(errs);
+			
+		}
 		$("#results").show();
 	  }
 
   function validation_failed(req){
-		console.log("failure");
+	//	console.log("failure");
 		res_init(false);
 		if(req.status==409){
-		var errs=$.parseJSON(req.responseText);
+				var errs=$.parseJSON(req.responseText);
+			render_validation_results(errs);
+		}else{
+			$("#results").append(req.responseText)
+		}
+		$("#results").show();
+	  }
+  
+  function render_validation_results(errs){
 		var resu=" <ol id=\"error_loop\"> "
 		for(var i=0;i<errs.length;i++){
 
@@ -112,12 +125,8 @@
 			
 			resu+="<li class=\"msg_err sev"+errs[i].severity+"\">"+txt+"</li>"
 			}
-		$("#results").append(resu+"</ol>")
-		}else{
-			$("#results").append(req.responseText)
-		}
-		$("#results").show();
-	  }
+		$("#results").append(resu+"</ol>")  
+  }
   
   function form_submitted(){
 	
