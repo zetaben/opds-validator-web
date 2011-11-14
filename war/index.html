@@ -65,7 +65,10 @@
   closeOptions();
   
   function res_init(success){
-		$("#results").empty().addClass((success ? "successful" : "failed" )).removeClass((!success ? "successful" : "failed" )).append("<h3>Validation "+(success ? "Successful" : "Failed" )+"</h3>")
+		$("#results").empty().addClass((success ? "successful" : "failed" )).removeClass((!success ? "successful" : "failed" ))
+		.append("<a style=\"float:right\" href=\"?uri="+$("#uri").val()+"\" title=\"Link to this validation\">Link</a>")
+		.append("<h3>Validation "+(success ? "Successful" : "Failed" )+"</h3>")
+		
 	  }
   
   function validation_successful(errs){
@@ -147,6 +150,9 @@
 	$("#results").hide();
 	$("#uri_input").addClass("loading");
 	$.getJSON($("#validation_form")[0].action,{uri:$("#uri").val(),opds_version:$("#opds_version").val()},validation_successful).error(validation_failed).complete(function(){$("#uri_input").removeClass("loading");})
+	  if(history.pushState){
+	  	history.pushState({uri:$("#uri").val()},$("#uri").val(),"?uri="+$("#uri").val());
+	  }
 	  
 	  return false;
 	  }
@@ -154,6 +160,25 @@
   $("h1").click(form_submitted)
 $("#validation_form").submit(form_submitted)	
 
+
+var urlParams = {};
+(function () {
+    var e,
+        a = /\+/g,  // Regex for replacing addition symbol with a space
+        r = /([^&=]+)=?([^&]*)/g,
+        d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
+        q = window.location.search.substring(1);
+
+    while (e = r.exec(q))
+       urlParams[d(e[1])] = d(e[2]);
+})();
+
+$(function() {
+	if("uri" in urlParams){
+		$("#uri").val(urlParams["uri"])
+		$("#validation_form").submit();
+	}
+})
 
 	//]]>
     </script>
