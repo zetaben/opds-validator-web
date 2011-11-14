@@ -114,3 +114,11 @@ li span.err_type img {
 	font-weight: bold;
 	line-height: 130%;
 }
+
+#source {
+	background-color:#FFF;
+	font-family: consolas,courrier,monospace;
+	padding:15px;
+
+}
+

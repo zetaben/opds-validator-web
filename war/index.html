@@ -1,11 +1,4 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
-<!-- above set at the top of the file will set     -->
-<!-- the browser's rendering engine into           -->
-<!-- "Quirks Mode". Replacing this declaration     -->
-<!-- with a "Standards Mode" doctype is supported, -->
-<!-- but may lead to some differences in layout.   -->
-
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -78,7 +71,8 @@
   function validation_successful(errs){
 		//console.log("success");
 		res_init(true);
-		if(errs.length > 0 ){
+		
+		if(errs.results.length > 0 ){
 			$("#results h3").append(" with warnings");
 			render_validation_results(errs);
 			
@@ -88,6 +82,7 @@
 
   function validation_failed(req){
 	//	console.log("failure");
+	
 		res_init(false);
 		if(req.status==409){
 				var errs=$.parseJSON(req.responseText);
@@ -100,32 +95,51 @@
   
   function render_validation_results(errs){
 		var resu=" <ol id=\"error_loop\"> "
-		for(var i=0;i<errs.length;i++){
+		var errtab=[];
+		for(var i=0;i<errs.results.length;i++){
 
+			if(errs.results[i].severity){
 			var txt=""
-			if(errs[i].severity=="error"){
+			
+			if(errs.results[i].severity=="error"){
 				txt="<img src=\"img/error.png\" alt=\"Error\" title=\"Error\" />"
-			}else if(errs[i].severity=="fatal"){
+			}else if(errs.results[i].severity=="fatal"){
 				txt="<img src=\"img/fatal.png\" alt=\"Fatal Error\" title=\"Fatal Error\" />"
-			}if(errs[i].severity=="warning"){
+			}if(errs.results[i].severity=="warning"){
 				txt="<img src=\"img/warning.png\" alt=\"Warning\" title=\"Warning\" />"
-			}if(errs[i].severity=="info"){
+			}if(errs.results[i].severity=="info"){
 				txt="<img src=\"img/info.png\" alt=\"Information\" title=\"Information\" />"
 			}
 			txt="<span class=\"err_type\">"+txt+"</span>"
 			txt+="<em>"
-				if(errs[i].line > 0 ){
-						txt+="Line "+errs[i].line
-						if(errs[i].column > 0){txt+=", "}
+				if(errs.results[i].line > 0 ){
+						txt+="<a href=\"#line"+errs.results[i].line+"\">"
+						txt+="Line "+errs.results[i].line
+						txt+="</a>"
+						errtab[errs.results[i].line]=errs.results[i].severity;
+						if(errs.results[i].column > 0){txt+=", "}
 					}
-			if(errs[i].column > 0){
-				txt+="Column "+errs[i].column
+			if(errs.results[i].column > 0){
+				txt+="Column "+errs.results[i].column
 				}
-			txt+="</em> \n<span class=\"msg\">"+errs[i].message+"</span>"
-			
-			resu+="<li class=\"msg_err sev"+errs[i].severity+"\">"+txt+"</li>"
+			txt+="</em> \n<span class=\"msg\">"+errs.results[i].message+"</span>"
+			resu+="<li class=\"msg_err sev"+errs.results[i].severity+"\">"+txt+"</li>"
+			}else{
+				resu+="<li class=\"msg_err sevfatal\"><img src=\"img/fatal.png\" alt=\"Fatal Error\" title=\"Fatal Error\" /><em>Fatal</em>\n<span class=\"msg\">"+errs.results[i]+"</span></li>"
 			}
-		$("#results").append(resu+"</ol>")  
+			}
+			resu+="</ol>"
+			
+			resu+="<h3>Source</h3> <div id=\"source\"> <ol>"
+			var lines=errs.source.split("\n");
+			
+			for(var i=0;i<lines.length;i++){
+				resu+="<li id=\"line"+(i+1)+"\" "+(errtab[i+1] ? "class=\"sev"+errtab[i+1]+"\"" : "")+">"+lines[i].replace(/&/g,"&amp;").replace(/>/g,"&gt;").replace(/</g,"&lt;")+"</li>"
+			}
+			
+
+			
+		$("#results").append(resu+"</ol></div>")  
   }
   
   function form_submitted(){
