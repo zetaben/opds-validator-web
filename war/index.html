@@ -17,14 +17,19 @@
 				<h1>Open Publication Distribution System</h1>
 				<h2>Unofficial Validator</h2>
 			</div>
+			<ul id="tabs">
+			<li><a href="#validate-by-uri">Validate By URI</a></li>
+			<li><a href="#validate-by-direct">Validate By direct input</a></li>
+			</ul>
+			
 			<fieldset id="validate-by-uri" class="tabset_content front"><legend class="tabset_label">Validate by URI</legend> 
-				<form method="get" action="/opdsvalidatorweb" id="validation_form"> 
+				<form method="get" action="/opdsvalidatorweb" id="validation_form_uri"> 
 					<p class="instructions"> 
 					Validate a feed online:     
 					</p> 
 					<p> 
 					<label title="Address of page to Validate" for="uri">Address:</label> 
-					<span id="uri_input"><input type="text" name="uri" id="uri" size="100" /></span> 
+					<span id="uri_input" class="loadable"><input type="text" name="uri" id="uri" size="100" /></span> 
 					</p> 
 					<p class="submit_button"> 
 					<input type="submit" title="Submit for validation" value="Check" /> 
@@ -33,9 +38,33 @@
 					<legend class="toggletext">
 						<a><img id="toggleiconURI" class="toggleicon toggled" src="./img/arrow-open.png" alt="Hide "> More Options</a>
 					</legend>
-					<div id="options">
+					<div class="options">
 						<table>
-							<tr><th>OPDS Version</th><td><select name="opds_version" id="opds_version"><option value="1.0">1.0</option><option value="1.1" selected="selected">1.1 (current)</option></select></td></tr>
+							<tr><th>OPDS Version</th><td><select name="opds_version" ><option value="1.0">1.0</option><option value="1.1" selected="selected">1.1 (current)</option></select></td></tr>
+						</table>
+					</div>
+				</form>
+			</fieldset>
+			<fieldset id="validate-by-direct" class="tabset_content front"><legend class="tabset_label">Validate by direct input</legend> 
+				<form method="post" action="/opdsvalidatorweb" id="validation_form_direct"> 
+					<p class="instructions"> 
+					Validate a feed by direct input:     
+					</p> 
+					<p> 
+		  			<span id="feed_input" class="loadable"><label title="Feed to validate" for="uri">Feed:</label></span> <br />
+					<textarea name="feed" id="feed" cols="80" rows="20" style="width:100%"></textarea> 
+					</p> 
+					
+					<p class="submit_button"> 
+					<input type="submit" title="Submit for validation" value="Check" /> 
+					</p> 
+
+					<legend class="toggletext">
+						<a><img id="toggleiconDirect" class="toggleicon toggled" src="./img/arrow-open.png" alt="Hide "> More Options</a>
+					</legend>
+					<div class="options">
+						<table>
+							<tr><th>OPDS Version</th><td><select name="opds_version" ><option value="1.0">1.0</option><option value="1.1" selected="selected">1.1 (current)</option></select></td></tr>
 						</table>
 					</div>
 				</form>
@@ -48,26 +77,58 @@
 		<script type="text/javascript">
 			//<![CDATA[
 
-$("#uri").after("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader\"/>");
-$("#uri_input").removeClass("loading");
+$("#uri").after("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader_uri\"/>");
+$("#feed_input").append("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader_feed\"/>");
+
+$(".tabset_label").hide();
+
+
+$(".loadable").removeClass("loading");
+
 
 function openOptions(){
-	$("#options").slideDown("fast");
-	$("#toggleiconURI")[0].src="./img/arrow-open.png"
+	$(".options").slideDown("fast");
+	$(".toggleicon").attr({src:"./img/arrow-open.png"})
 }
 
 function closeOptions(){
-	$("#options").slideUp("fast");
-	$("#toggleiconURI")[0].src="./img/arrow-closed.png"
+	$(".options").slideUp("fast");
+	$(".toggleicon").attr({src:"./img/arrow-closed.png"})
 }
 $(".toggletext").toggle(openOptions,closeOptions)
 
 closeOptions();
 
+$("#validate-by-direct").hide();
+
+function showForm(ev)
+{
+	id=ev.target.href
+	$("#tabs li").removeClass("selected")
+	$(".tabset_content").each(function (){
+		console.log([this.id,id]);
+			if(id.search("#"+this.id)!=-1){
+					$(this).fadeIn()
+					$(ev.target).parent("li").addClass("selected");
+			}else{
+					$(this).hide();
+			}
+		})
+ return false;
+}
+
+
+$("#tabs a").click(showForm)
+
+
+
+
 function res_init(success){
-	$("#results").empty().addClass((success ? "successful" : "failed" )).removeClass((!success ? "successful" : "failed" ))
-		.append("<a style=\"float:right\" href=\"?uri="+$("#uri").val()+"\" title=\"Link to this validation\">Link</a>")
-		.append("<h3>Validation "+(success ? "Successful" : "Failed" )+"</h3>")
+	r=$("#results").empty().addClass((success ? "successful" : "failed" )).removeClass((!success ? "successful" : "failed" ));
+	if(window.validation_method=="uri"){
+		r=r.append("<a style=\"float:right\" href=\"?uri="+$("#uri").val()+"\" title=\"Link to this validation\">Link</a>");
+	}
+	r=r.append("<h3>Validation "+(success ? "Successful" : "Failed" )+"</h3>");
 
 }
 
@@ -145,11 +206,12 @@ function render_validation_results(errs){
 	$("#results").append(resu+"</ol></div>")  
 }
 
-function form_submitted(){
+function form_submitted_uri(){
 
+	window.validation_method="uri"
 	$("#results").hide();
-	$("#uri_input").addClass("loading");
-	$.getJSON($("#validation_form")[0].action,{uri:$("#uri").val(),opds_version:$("#opds_version").val()},validation_successful).error(validation_failed).complete(function(){$("#uri_input").removeClass("loading");})
+	$(".loadable").addClass("loading");
+	$.getJSON($("#validation_form_uri")[0].action,{uri:$("#uri").val(),opds_version:$("#validation_form_uri select[name=opds_version]").val()},validation_successful).error(validation_failed).complete(function(){$(".loadable").removeClass("loading");})
 		if(history.pushState){
 			history.pushState({uri:$("#uri").val()},$("#uri").val(),"?uri="+$("#uri").val());
 		}
@@ -157,8 +219,27 @@ function form_submitted(){
 	return false;
 }
 
-$("h1").click(form_submitted)
-$("#validation_form").submit(form_submitted)	
+function form_submitted_direct(){
+
+	window.validation_method="direct"
+	$("#results").hide();
+	$(".loadable").addClass("loading");
+	
+	$.ajax({
+			type:'POST',
+			dataType: 'json',
+			url:$("#validation_form_direct")[0].action,
+			data:{feed:$("#feed").val(),opds_version:$("#validation_form_feed select[name=opds_version]").val()},
+			success:validation_successful
+			}).error(validation_failed).complete(function(){$(".loadable").removeClass("loading");})
+	
+
+	return false;
+}
+
+
+$("#validation_form_uri").submit(form_submitted_uri)	
+$("#validation_form_direct").submit(form_submitted_direct)	
 
 
 var urlParams = {};
@@ -176,7 +257,7 @@ while (e = r.exec(q))
 $(function() {
 	if("uri" in urlParams){
 		$("#uri").val(urlParams["uri"])
-	$("#validation_form").submit();
+	$("#validation_form_uri").submit();
 	}
 })
 //]]>

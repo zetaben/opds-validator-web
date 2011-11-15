@@ -49,9 +49,6 @@ form {
 	display:inline;
 }
 
-
-
-
 #uri_input img {
 	width: 1.4em;
 	height: 1.4em;
@@ -60,6 +57,21 @@ form {
 /*	padding-right: 0.3em;*/
 	
 }
+
+#feed_input img {
+	display:none;
+	width: 1.4em;
+	height: 1.4em;
+}
+
+#feed_input {padding-right:1.6em}
+#feed_input.loading {padding-right:0.2em}
+
+#feed_input.loading img {
+	display:inline;
+}
+
+#loader_feed{float:right;}
 
 #uri {
 	border: none;
@@ -122,3 +134,17 @@ li span.err_type img {
 
 }
 
+
+#tabs li {
+	display:inline;
+	border:1px solid #CCC;
+	padding:10px;
+}
+
+#tabs{
+	margin-bottom: 0.7em;
+}
+
+.selected {
+background-color: #FBF9EA;
+}
