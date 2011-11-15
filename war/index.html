@@ -1,186 +1,185 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <title>Open Publication Distribution System Validator</title>
-    <link rel="stylesheet" href="css/screen.css" type="text/css" media="screen, projection"/>
-	<link rel="stylesheet" href="css/print.css" type="text/css" media="print"/>
-	<!--[if lt IE 8]>
-  		<link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"/>
-	<![endif]-->
-	<link rel="stylesheet" href="css/main.css" type="text/css" />
-  </head>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>Open Publication Distribution System Validator</title>
+		<link rel="stylesheet" href="css/screen.css" type="text/css" media="screen, projection"/>
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print"/>
+		<!--[if lt IE 8]>
+		<link rel="stylesheet" href="css/ie.css" type="text/css" media="screen, projection"/>
+		<![endif]-->
+		<link rel="stylesheet" href="css/main.css" type="text/css" />
+	</head>
 
-  <body>
-  	<div class="container">
-  	<div id="head">
-  		<h1>Open Publication Distribution System</h1>
-  		<h2>Unofficial Validator</h2>
-	</div>
-    <fieldset id="validate-by-uri" class="tabset_content front"><legend class="tabset_label">Validate by URI</legend> 
-  <form method="get" action="/opdsvalidatorweb" id="validation_form"> 
-    <p class="instructions"> 
-	Validate a feed online:     
-   </p> 
-   <p> 
-	<label title="Address of page to Validate" for="uri">Address:</label> 
-        <span id="uri_input"><input type="text" name="uri" id="uri" size="100" /></span> 
-   </p> 
-   	<p class="submit_button"> 
-			<input type="submit" title="Submit for validation" value="Check" /> 
-	</p> 
-	
-	<legend class="toggletext">
-		<a><img id="toggleiconURI" class="toggleicon toggled" src="./img/arrow-open.png" alt="Hide "> More Options</a>
-	</legend>
-	<div id="options">
-	<table>
-	<tr><th>OPDS Version</th><td><select name="opds_version" id="opds_version"><option value="1.0">1.0</option><option value="1.1" selected="selected">1.1 (current)</option></select></td></tr>
-	</table>
-	</div>
-   </form>
-   </fieldset>
-   <div id="results" class="prepend-1 append-1 last">
-   
-   </div>
-	</div>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <script type="text/javascript">
-  //<![CDATA[
-  
-  $("#uri").after("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader\"/>");
-  $("#uri_input").removeClass("loading");
-  
-  function openOptions(){
-  	$("#options").slideDown("fast");
-  	$("#toggleiconURI")[0].src="./img/arrow-open.png"
-  }
-  
-  function closeOptions(){
-  	$("#options").slideUp("fast");
-  	$("#toggleiconURI")[0].src="./img/arrow-closed.png"
-  }
-  $(".toggletext").toggle(openOptions,closeOptions)
-  
-  closeOptions();
-  
-  function res_init(success){
-		$("#results").empty().addClass((success ? "successful" : "failed" )).removeClass((!success ? "successful" : "failed" ))
+	<body>
+		<div class="container">
+			<div id="head">
+				<h1>Open Publication Distribution System</h1>
+				<h2>Unofficial Validator</h2>
+			</div>
+			<fieldset id="validate-by-uri" class="tabset_content front"><legend class="tabset_label">Validate by URI</legend> 
+				<form method="get" action="/opdsvalidatorweb" id="validation_form"> 
+					<p class="instructions"> 
+					Validate a feed online:     
+					</p> 
+					<p> 
+					<label title="Address of page to Validate" for="uri">Address:</label> 
+					<span id="uri_input"><input type="text" name="uri" id="uri" size="100" /></span> 
+					</p> 
+					<p class="submit_button"> 
+					<input type="submit" title="Submit for validation" value="Check" /> 
+					</p> 
+
+					<legend class="toggletext">
+						<a><img id="toggleiconURI" class="toggleicon toggled" src="./img/arrow-open.png" alt="Hide "> More Options</a>
+					</legend>
+					<div id="options">
+						<table>
+							<tr><th>OPDS Version</th><td><select name="opds_version" id="opds_version"><option value="1.0">1.0</option><option value="1.1" selected="selected">1.1 (current)</option></select></td></tr>
+						</table>
+					</div>
+				</form>
+			</fieldset>
+			<div id="results" class="prepend-1 append-1 last">
+
+			</div>
+		</div>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+		<script type="text/javascript">
+			//<![CDATA[
+
+$("#uri").after("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader\"/>");
+$("#uri_input").removeClass("loading");
+
+function openOptions(){
+	$("#options").slideDown("fast");
+	$("#toggleiconURI")[0].src="./img/arrow-open.png"
+}
+
+function closeOptions(){
+	$("#options").slideUp("fast");
+	$("#toggleiconURI")[0].src="./img/arrow-closed.png"
+}
+$(".toggletext").toggle(openOptions,closeOptions)
+
+closeOptions();
+
+function res_init(success){
+	$("#results").empty().addClass((success ? "successful" : "failed" )).removeClass((!success ? "successful" : "failed" ))
 		.append("<a style=\"float:right\" href=\"?uri="+$("#uri").val()+"\" title=\"Link to this validation\">Link</a>")
 		.append("<h3>Validation "+(success ? "Successful" : "Failed" )+"</h3>")
-		
-	  }
-  
-  function validation_successful(errs){
-		//console.log("success");
-		res_init(true);
-		
-		if(errs.results.length > 0 ){
-			$("#results h3").append(" with warnings");
-			render_validation_results(errs);
-			
-		}
-		$("#results").show();
-	  }
 
-  function validation_failed(req){
+}
+
+function validation_successful(errs){
+	//console.log("success");
+	res_init(true);
+
+	if(errs.results.length > 0 ){
+		$("#results h3").append(" with warnings");
+		render_validation_results(errs);
+
+	}
+	$("#results").show();
+}
+
+function validation_failed(req){
 	//	console.log("failure");
-	
-		res_init(false);
-		if(req.status==409){
-				var errs=$.parseJSON(req.responseText);
-			render_validation_results(errs);
-		}else{
-			$("#results").append(req.responseText)
-		}
-		$("#results").show();
-	  }
-  
-  function render_validation_results(errs){
-		var resu=" <ol id=\"error_loop\"> "
-		var errtab=[];
-		for(var i=0;i<errs.results.length;i++){
 
-			if(errs.results[i].severity){
+	res_init(false);
+	if(req.status==409){
+		var errs=$.parseJSON(req.responseText);
+		render_validation_results(errs);
+	}else{
+		$("#results").append(req.responseText)
+	}
+	$("#results").show();
+}
+
+function render_validation_results(errs){
+	var resu=" <ol id=\"error_loop\"> "
+		var errtab=[];
+	for(var i=0;i<errs.results.length;i++){
+
+		if(errs.results[i].severity){
 			var txt=""
-			
-			if(errs.results[i].severity=="error"){
-				txt="<img src=\"img/error.png\" alt=\"Error\" title=\"Error\" />"
-			}else if(errs.results[i].severity=="fatal"){
-				txt="<img src=\"img/fatal.png\" alt=\"Fatal Error\" title=\"Fatal Error\" />"
-			}if(errs.results[i].severity=="warning"){
-				txt="<img src=\"img/warning.png\" alt=\"Warning\" title=\"Warning\" />"
-			}if(errs.results[i].severity=="info"){
-				txt="<img src=\"img/info.png\" alt=\"Information\" title=\"Information\" />"
-			}
+
+				if(errs.results[i].severity=="error"){
+					txt="<img src=\"img/error.png\" alt=\"Error\" title=\"Error\" />"
+				}else if(errs.results[i].severity=="fatal"){
+					txt="<img src=\"img/fatal.png\" alt=\"Fatal Error\" title=\"Fatal Error\" />"
+				}if(errs.results[i].severity=="warning"){
+					txt="<img src=\"img/warning.png\" alt=\"Warning\" title=\"Warning\" />"
+				}if(errs.results[i].severity=="info"){
+					txt="<img src=\"img/info.png\" alt=\"Information\" title=\"Information\" />"
+				}
 			txt="<span class=\"err_type\">"+txt+"</span>"
-			txt+="<em>"
+				txt+="<em>"
 				if(errs.results[i].line > 0 ){
-						txt+="<a href=\"#line"+errs.results[i].line+"\">"
+					txt+="<a href=\"#line"+errs.results[i].line+"\">"
 						txt+="Line "+errs.results[i].line
 						txt+="</a>"
 						errtab[errs.results[i].line]=errs.results[i].severity;
-						if(errs.results[i].column > 0){txt+=", "}
-					}
+					if(errs.results[i].column > 0){txt+=", "}
+				}
 			if(errs.results[i].column > 0){
 				txt+="Column "+errs.results[i].column
-				}
+			}
 			txt+="</em> \n<span class=\"msg\">"+errs.results[i].message+"</span>"
-			resu+="<li class=\"msg_err sev"+errs.results[i].severity+"\">"+txt+"</li>"
-			}else{
-				resu+="<li class=\"msg_err sevfatal\"><img src=\"img/fatal.png\" alt=\"Fatal Error\" title=\"Fatal Error\" /><em>Fatal</em>\n<span class=\"msg\">"+errs.results[i]+"</span></li>"
-			}
-			}
-			resu+="</ol>"
-			
-			resu+="<h3>Source</h3> <div id=\"source\"> <ol>"
-			var lines=errs.source.split("\n");
-			
-			for(var i=0;i<lines.length;i++){
-				resu+="<li id=\"line"+(i+1)+"\" "+(errtab[i+1] ? "class=\"sev"+errtab[i+1]+"\"" : "")+">"+lines[i].replace(/&/g,"&amp;").replace(/>/g,"&gt;").replace(/</g,"&lt;")+"</li>"
-			}
-			
+				resu+="<li class=\"msg_err sev"+errs.results[i].severity+"\">"+txt+"</li>"
+		}else{
+			resu+="<li class=\"msg_err sevfatal\"><img src=\"img/fatal.png\" alt=\"Fatal Error\" title=\"Fatal Error\" /><em>Fatal</em>\n<span class=\"msg\">"+errs.results[i]+"</span></li>"
+		}
+	}
+	resu+="</ol>"
 
-			
-		$("#results").append(resu+"</ol></div>")  
-  }
-  
-  function form_submitted(){
-	
+		resu+="<h3>Source</h3> <div id=\"source\"> <ol>"
+		var lines=errs.source.split("\n");
+
+	for(var i=0;i<lines.length;i++){
+		resu+="<li id=\"line"+(i+1)+"\" "+(errtab[i+1] ? "class=\"sev"+errtab[i+1]+"\"" : "")+">"+lines[i].replace(/&/g,"&amp;").replace(/>/g,"&gt;").replace(/</g,"&lt;")+"</li>"
+	}
+
+
+
+	$("#results").append(resu+"</ol></div>")  
+}
+
+function form_submitted(){
+
 	$("#results").hide();
 	$("#uri_input").addClass("loading");
 	$.getJSON($("#validation_form")[0].action,{uri:$("#uri").val(),opds_version:$("#opds_version").val()},validation_successful).error(validation_failed).complete(function(){$("#uri_input").removeClass("loading");})
-	  if(history.pushState){
-	  	history.pushState({uri:$("#uri").val()},$("#uri").val(),"?uri="+$("#uri").val());
-	  }
-	  
-	  return false;
-	  }
- 
-  $("h1").click(form_submitted)
+		if(history.pushState){
+			history.pushState({uri:$("#uri").val()},$("#uri").val(),"?uri="+$("#uri").val());
+		}
+
+	return false;
+}
+
+$("h1").click(form_submitted)
 $("#validation_form").submit(form_submitted)	
 
 
 var urlParams = {};
 (function () {
-    var e,
-        a = /\+/g,  // Regex for replacing addition symbol with a space
-        r = /([^&=]+)=?([^&]*)/g,
-        d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
-        q = window.location.search.substring(1);
+	var e,
+	a = /\+/g,  // Regex for replacing addition symbol with a space
+	r = /([^&=]+)=?([^&]*)/g,
+	d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
+	q = window.location.search.substring(1);
 
-    while (e = r.exec(q))
-       urlParams[d(e[1])] = d(e[2]);
+while (e = r.exec(q))
+	urlParams[d(e[1])] = d(e[2]);
 })();
 
 $(function() {
 	if("uri" in urlParams){
 		$("#uri").val(urlParams["uri"])
-		$("#validation_form").submit();
+	$("#validation_form").submit();
 	}
 })
-
-	//]]>
-    </script>
+//]]>
+</script>
   </body>
 </html>
