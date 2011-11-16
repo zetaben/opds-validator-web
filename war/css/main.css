@@ -166,3 +166,9 @@ li span.err_type img {
 .selected {
 background-color: #FBF9EA;
 }
+
+#footer {
+	margin:auto;
+	text-align:center;
+	font-size:0.8em;
+}
