@@ -18,8 +18,9 @@
 				<h2>Unofficial Validator</h2>
 			</div>
 			<ul id="tabs">
-			<li><a href="#validate-by-uri">Validate By URI</a></li>
-			<li><a href="#validate-by-direct">Validate By direct input</a></li>
+			<li><a href="#validate-by-uri">Validate by URI</a></li>
+			<li><a href="#validate-by-direct">Validate by Direct Input</a></li>
+			<li><a href="#validate-by-upload">Validate by File Upload</a></li>
 			</ul>
 			
 			<fieldset id="validate-by-uri" class="tabset_content front"><legend class="tabset_label">Validate by URI</legend> 
@@ -69,16 +70,41 @@
 					</div>
 				</form>
 			</fieldset>
+			<fieldset id="validate-by-upload" class="tabset_content front"><legend class="tabset_label">Validate by URI</legend> 
+				<form method="post" action="/opdsvalidatorweb" id="validation_form_upload" enctype="multipart/form-data"> 
+					<p class="instructions"> 
+					Validate a file:     
+					</p> 
+					<p> 
+					<label title="Address of page to Validate" for="file">File:</label> 
+					<span id="file_input" class="loadable"><input type="file" name="file" id="file" size="100" /></span> 
+					</p> 
+					<p class="submit_button"> 
+					<input type="submit" title="Submit for validation" value="Check" /> 
+					</p> 
+
+					<legend class="toggletext">
+						<a><img id="toggleiconURI" class="toggleicon toggled" src="./img/arrow-open.png" alt="Hide "> More Options</a>
+					</legend>
+					<div class="options">
+						<table>
+							<tr><th>OPDS Version</th><td><select name="opds_version" ><option value="1.0">1.0</option><option value="1.1" selected="selected">1.1 (current)</option></select></td></tr>
+						</table>
+					</div>
+				</form>
+			</fieldset>
 			<div id="results" class="prepend-1 append-1 last">
 
 			</div>
 		</div>
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+		<script type="text/javascript" src="js/ajaxfileupload.js"></script>
 		<script type="text/javascript">
 			//<![CDATA[
 
 $("#uri").after("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader_uri\"/>");
 $("#feed_input").append("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader_feed\"/>");
+$("#file_input").append("<img src=\"img/throbber.gif\" alt=\"Loading\" title=\"Loading\" id=\"loader_file\"/>");
 
 $(".tabset_label").hide();
 
@@ -99,14 +125,13 @@ $(".toggletext").toggle(openOptions,closeOptions)
 
 closeOptions();
 
-$("#validate-by-direct").hide();
+$("#validate-by-direct, #validate-by-upload").hide();
 
 function showForm(ev)
 {
 	id=ev.target.href
 	$("#tabs li").removeClass("selected")
 	$(".tabset_content").each(function (){
-		console.log([this.id,id]);
 			if(id.search("#"+this.id)!=-1){
 					$(this).fadeIn()
 					$(ev.target).parent("li").addClass("selected");
@@ -229,7 +254,7 @@ function form_submitted_direct(){
 			type:'POST',
 			dataType: 'json',
 			url:$("#validation_form_direct")[0].action,
-			data:{feed:$("#feed").val(),opds_version:$("#validation_form_feed select[name=opds_version]").val()},
+			data:{feed:$("#feed").val(),opds_version:$("#validation_form_direct select[name=opds_version]").val()},
 			success:validation_successful
 			}).error(validation_failed).complete(function(){$(".loadable").removeClass("loading");})
 	
@@ -237,9 +262,38 @@ function form_submitted_direct(){
 	return false;
 }
 
+function form_submitted_upload(){
+
+	window.validation_method="upload"
+	$("#results").hide();
+	$(".loadable").addClass("loading");
+	
+	 $.ajaxFileUpload
+     (
+             {
+                     url:$("#validation_form_upload")[0].action,
+                     secureuri:false,
+                     fileElementId:'file',
+                     dataType: 'json',
+                     data:{opds_version:$("#validation_form_upload select[name=opds_version]").val()},
+                     success:validation_successful,
+                     error: function (data, status, e)
+                     {
+                        validation_failed({status: status,responseText: data})
+                     },
+             		complete:function(){$(".loadable").removeClass("loading")}
+             }
+     )
+
+	return false;
+}
+
+
+
 
 $("#validation_form_uri").submit(form_submitted_uri)	
 $("#validation_form_direct").submit(form_submitted_direct)	
+$("#validation_form_upload").submit(form_submitted_upload)	
 
 
 var urlParams = {};

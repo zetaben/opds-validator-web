@@ -32,7 +32,7 @@ form {
 	font-size: 1.4em;
 }
 
-#uri_input {
+#uri_input,#file_input {
 	border: 1px solid #BBB;
 	padding:0.2em;
 	
@@ -72,6 +72,24 @@ form {
 }
 
 #loader_feed{float:right;}
+
+
+#file_input img {
+	display:none;
+	width: 1.4em;
+	height: 1.4em;
+}
+
+#file_input {padding-right:1.6em}
+#file_input.loading {padding-right:0.2em}
+
+#file_input.loading img {
+	display:inline;
+}
+
+#loader_file {
+	vertical-align: top;
+}
 
 #uri {
 	border: none;
@@ -129,7 +147,7 @@ li span.err_type img {
 
 #source {
 	background-color:#FFF;
-	font-family: consolas,courrier,monospace;
+	font-family: consolas,monaco,courrier,monospace;
 	padding:15px;
 
 }

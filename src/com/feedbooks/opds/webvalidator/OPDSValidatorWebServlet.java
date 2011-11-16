@@ -2,11 +2,18 @@ package com.feedbooks.opds.webvalidator;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.logging.Logger;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 import org.apache.tools.ant.taskdefs.Sleep;
 import org.json.JSONString;
 
@@ -80,20 +87,62 @@ public class OPDSValidatorWebServlet extends HttpServlet {
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+			throws IOException, ServletException {
 		resp.setContentType("application/json");
-		String feed = req.getParameter("feed");
-		if (feed != null && !feed.equals("")) {
-			String opds_version = "1.0";
-			String ve = req.getParameter("opds_version");
-			if (ve != null && !ve.equals("")) {
-				opds_version = ve;
+
+		// Logger log =
+		// Logger.getLogger(OPDSValidatorWebServlet.class.getName());
+
+		if (req.getHeader("content-type").startsWith("multipart/")) {
+
+			String opds_version = null;
+			String content = null;
+			String filename = null;
+			try {
+				ServletFileUpload upload = new ServletFileUpload();
+
+				FileItemIterator iterator = upload.getItemIterator(req);
+				while (iterator.hasNext()
+						&& (opds_version == null || content == null)) {
+					FileItemStream item = iterator.next();
+					InputStream stream = item.openStream();
+
+					if (item.isFormField()) {
+						if (item.getFieldName().equals("opds_version")) {
+							opds_version = Streams.asString(stream);
+						}
+
+					} else {
+						content = Streams.asString(stream);
+						filename = item.getName();
+					}
+				}
+			} catch (Exception ex) {
+				throw new ServletException(ex);
 			}
 
-			handleValidation(req, resp, feed, "direct", opds_version);
+			if (content != null && !content.equals("")) {
+				handleValidation(req, resp, content, filename, opds_version);
+
+			} else {
+				resp.setStatus(400);
+			}
 
 		} else {
-			resp.setStatus(400);
+
+			String feed = req.getParameter("feed");
+			if (feed != null && !feed.equals("")) {
+				String opds_version = "1.0";
+				String ve = req.getParameter("opds_version");
+				if (ve != null && !ve.equals("")) {
+					opds_version = ve;
+				}
+
+				handleValidation(req, resp, feed, "direct://", opds_version);
+
+			} else {
+				resp.setStatus(400);
+			}
 		}
 	}
 }
