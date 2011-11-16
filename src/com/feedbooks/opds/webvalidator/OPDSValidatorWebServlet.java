@@ -30,6 +30,8 @@ import static com.google.appengine.api.urlfetch.FetchOptions.Builder.*;
 
 @SuppressWarnings("serial")
 public class OPDSValidatorWebServlet extends HttpServlet {
+	
+	private  static final String OPDS_VERSION="1.1";
 
 	private void handleValidation(HttpServletRequest req,
 			HttpServletResponse resp, String content, String name,
@@ -66,7 +68,7 @@ public class OPDSValidatorWebServlet extends HttpServlet {
 		resp.setContentType("application/json");
 		String uri = req.getParameter("uri");
 		if (uri != null && !uri.equals("") && uri.startsWith("http")) {
-			String opds_version = "1.0";
+			String opds_version = OPDS_VERSION;
 			String ve = req.getParameter("opds_version");
 			if (ve != null && !ve.equals("")) {
 				opds_version = ve;
@@ -132,7 +134,7 @@ public class OPDSValidatorWebServlet extends HttpServlet {
 
 			String feed = req.getParameter("feed");
 			if (feed != null && !feed.equals("")) {
-				String opds_version = "1.0";
+				String opds_version = OPDS_VERSION;
 				String ve = req.getParameter("opds_version");
 				if (ve != null && !ve.equals("")) {
 					opds_version = ve;
